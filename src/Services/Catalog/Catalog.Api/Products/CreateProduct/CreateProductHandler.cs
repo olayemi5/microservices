@@ -1,29 +1,27 @@
-﻿using BuildingBlocks.CQRS;
-using Catalog.Api.Models;
-using MediatR;
-
-namespace Catalog.Api.Products.CreateProduct
+﻿namespace Catalog.Api.Products.CreateProduct
 {
-
-    public record CreateProductCommand(string name, List<string>categories, string description, string imageFile, decimal price) 
+    public record CreateProductCommand(string Name, List<string>Categories, string Description, string ImageFile, decimal Price) 
         : ICommand<CreateProductResult>;
-    public record CreateProductResult(Guid id);
+    public record CreateProductResult(Guid Id);
 
-    internal class CreateProductCommandHandler : ICommandHandler<CreateProductCommand, CreateProductResult>
+    internal class CreateProductCommandHandler(IDocumentSession session)
+        : ICommandHandler<CreateProductCommand, CreateProductResult>
     {
         public async Task<CreateProductResult> Handle(CreateProductCommand command, CancellationToken cancellationToken)
         {
             //create product entity from incoming command object
             var product = new Product
             {
-                Name = command.name, 
-                Description = command.description,
-                Categories = command.categories,
-                Price = command.price,
-                ImageFile = command.imageFile,
+                Name = command.Name, 
+                Description = command.Description,
+                Categories = command.Categories,
+                Price = command.Price,
+                ImageFile = command.ImageFile,
             };
 
             //save to database
+            session.Store(product);
+            await session.SaveChangesAsync(cancellationToken);
 
             //return result - CreateProductResult
             return new CreateProductResult(Guid.NewGuid());
