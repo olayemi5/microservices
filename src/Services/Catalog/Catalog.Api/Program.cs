@@ -3,7 +3,6 @@ using BuildingBlocks.Behaviours;
 var builder = WebApplication.CreateBuilder(args);
 
 //add services to the conatianer
-builder.Services.AddCarter();
 builder.Services.AddMediatR(config =>
 {
     config.RegisterServicesFromAssembly(typeof(Program).Assembly);
@@ -11,6 +10,7 @@ builder.Services.AddMediatR(config =>
 });
 
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+builder.Services.AddCarter();
 
 builder.Services.AddMarten(config =>
 {
