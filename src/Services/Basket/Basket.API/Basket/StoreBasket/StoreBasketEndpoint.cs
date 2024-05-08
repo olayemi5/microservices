@@ -10,11 +10,11 @@ namespace Basket.API.Basket.StoreBasket
     {
         public void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapPost("/basket", async (ShoppingCart request, ISender sender) =>
+            app.MapPost("/basket", async (StoreBasketRequest request, ISender sender) =>
             {
                 var command = request.Adapt<StoreBasketCommand>();
 
-                var result = sender.Send(command);
+                var result = await sender.Send(command);
                 var response = result.Adapt<StoreBasketResponse>();
 
                 return Results.Ok(response);
@@ -23,7 +23,7 @@ namespace Basket.API.Basket.StoreBasket
             .Produces<GetBasketResponse>(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .WithSummary("Store Basket")
-            .WithDescription("Store Basket"); ;
+            .WithDescription("Store Basket");
         }
     }
 }

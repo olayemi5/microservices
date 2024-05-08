@@ -1,9 +1,23 @@
 var builder = WebApplication.CreateBuilder(args);
 
-//Add services to the container
+builder.Services.AddCarter();
+builder.Services.AddMediatR(config =>
+{
+    config.RegisterServicesFromAssembly(typeof(Program).Assembly);
+    config.AddOpenBehavior(typeof(ValidationBehaviour<,>));
+    config.AddOpenBehavior(typeof(Loggingbehaviuor<,>));
+});
+
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+
+//builder.Services.AddMarten(config =>
+//{
+//    config.Connection(builder.Configuration.GetConnectionString("Database")!);
+//}).UseLightweightSessions();
+
 
 var app = builder.Build();
 
-//Configure request pipeline
+app.MapCarter();
 
 app.Run();
