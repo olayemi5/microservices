@@ -9,4 +9,8 @@ global using Catalog.Api.Products.GetProduct;
 global using FluentValidation;
 global using BuildingBlocks.Behaviours;
 global using BuildingBlocks.Exceptions.Handler;
+global using Catalog.Api.Data;
+global using Marten.Pagination;
+
+
 
