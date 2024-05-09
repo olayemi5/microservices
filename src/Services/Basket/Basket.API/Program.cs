@@ -1,3 +1,4 @@
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCarter();
@@ -10,14 +11,21 @@ builder.Services.AddMediatR(config =>
 
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
-//builder.Services.AddMarten(config =>
-//{
-//    config.Connection(builder.Configuration.GetConnectionString("Database")!);
-//}).UseLightweightSessions();
+builder.Services.AddMarten(config =>
+{
+    config.Connection(builder.Configuration.GetConnectionString("Database")!);
+    config.Schema.For<ShoppingCart>().Identity(x => x.UserName);
+}).UseLightweightSessions();
 
+builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+builder.Services.AddScoped<IBasketRepository, BasketRepository>();
 
 var app = builder.Build();
 
+//CONFIGURE HTTP REQUEST PIPELINE
+
 app.MapCarter();
+
+app.UseExceptionHandler(opts => { });
 
 app.Run();
