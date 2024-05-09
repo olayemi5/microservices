@@ -1,4 +1,7 @@
 
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCarter();
@@ -25,7 +28,12 @@ builder.Services.Decorate<IBasketRepository, CachedbasketRepository>();
 builder.Services.AddStackExchangeRedisCache(opts =>
 {
     opts.Configuration = builder.Configuration.GetConnectionString("Redis");
-}); 
+});
+
+builder.Services.AddHealthChecks()
+    .AddNpgSql(builder.Configuration.GetConnectionString("Database")!)
+    .AddRedis(builder.Configuration.GetConnectionString("Redis")!);
+
 
 var app = builder.Build();
 
@@ -34,5 +42,11 @@ var app = builder.Build();
 app.MapCarter();
 
 app.UseExceptionHandler(opts => { });
+
+app.UseHealthChecks("/health",
+    new HealthCheckOptions
+    {
+        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+    });
 
 app.Run();
