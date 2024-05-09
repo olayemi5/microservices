@@ -10,6 +10,8 @@ global using Basket.API.Exception;
 global using Marten;
 global using Basket.API.Data;
 global using BuildingBlocks.Exceptions.Handler;
+global using Microsoft.Extensions.Caching.Distributed;
+
 
 
 
