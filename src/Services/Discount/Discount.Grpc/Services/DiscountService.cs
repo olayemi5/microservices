@@ -31,27 +31,49 @@ public class DiscountService
     {
         var coupon = request.Coupon.Adapt<Coupon>();
         if (coupon == null)
-            throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid request"));
+            throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid request object"));
 
         dbContext.Coupons.Add(coupon);
-        await dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync(); 
 
         logger.LogInformation($"Coupon Discount Created Successfully {JsonSerializer.Serialize(coupon)}");
         
         var couponModel = coupon.Adapt<CouponModel>();
 
         return couponModel;
-
     }
 
-    public override Task<CouponModel> UdateDiscount(UpdateDiscountRequest request, ServerCallContext context)
+    public override async Task<CouponModel> UdateDiscount(UpdateDiscountRequest request, ServerCallContext context)
     {
-        return base.UdateDiscount(request, context);
+        var coupon = request.Coupon.Adapt<Coupon>();
+        if (coupon == null)
+            throw new RpcException(new Status(StatusCode.InvalidArgument, "Invalid request object"));
+
+        dbContext.Coupons.Update(coupon);
+        await dbContext.SaveChangesAsync();
+
+        logger.LogInformation($"Coupon Discount Updated Successfully {JsonSerializer.Serialize(coupon)}");
+
+        var couponModel = coupon.Adapt<CouponModel>();
+
+        return couponModel;
     }
 
-    public override Task<DeleteDiscountResponse> DeleteDiscount(DeleteDiscountRequest request, ServerCallContext context)
+    public override async Task<DeleteDiscountResponse> DeleteDiscount(DeleteDiscountRequest request, ServerCallContext context)
     {
-        return base.DeleteDiscount(request, context);
+        var coupon = await dbContext
+            .Coupons
+            .FirstOrDefaultAsync(x => x.ProductName == request.ProductName);
+
+        if(coupon is null)
+            throw new RpcException(new Status(StatusCode.InvalidArgument, $"Discount with product name {request.ProductName} is not found"));
+
+        dbContext.Remove(coupon);
+        await dbContext.SaveChangesAsync();
+
+        logger.LogInformation($"Coupon Discount Deleted Successfully {JsonSerializer.Serialize(coupon)}");
+
+        return new DeleteDiscountResponse{ Success = true};
     }
 }
 
